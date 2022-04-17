@@ -1,1 +1,83 @@
 Devops Tooling Website 
+
+Infrastructure: AWS
+Webserver Linux: Red Hat Enterprise Linux 8
+Database Server: Ubuntu 20.04 + MySQL
+Storage Server: Red Hat Enterprise Linux 8 + NFS Server
+Programming Language: PHP
+Code Repository: GitHub
+
+# I created 3 instances for the Web Servers
+# One instance for the NFS server
+# One instance for the Database Server
+
+PREPARING THE NFS SERVER
+------------------------
+Created 3 volumes and attached them to the NFS Server
+I created a partition in each volume using the gdisk utility
+
+sudo gdisk /dev/xvdf /dev/xvdg /dev/xvdh
+
+# Then I installed the LVM package
+
+sudo yum install lvm2 -y
+# I created a physical volume on the partition
+
+sudo pvcreate /dev/xvdf1 /dev/xvdg1 /dev/xvdh1
+# Volumes successfully created
+
+# To scan for available disks and volumes
+sudo lvmdiskscan
+
+#Next, I created a volume group webdata-vg for the physical volumes
+sudo vgcreate webdata-vg /dev/xvdf1 /dev/xvdg1 /dev/xvdh1
+
+# Created logical volumes:
+sudo lvcreate -n lv-apps -L 4G webdata-vg
+sudo lvcreate -n lv-logs -L 4G webdata-vg
+sudo lvcreate -n lv-opt -L 4G webdata-vg
+
+formated the file system to xfs
+sudo mkfs -t xfs /dev/webdata-vg/lv-apps
+sudo mkfs -t xfs /dev/webdata-vg/lv-logs
+sudo mkfs -t xfs /dev/webdata-vg/lv-opt
+
+# make mount points:
+sudo mkdir /mnt/apps
+sudo mkdir /mnt/logs
+sudo mkdir /mnt/opt
+
+# mount :
+sudo mount /dev/webdata-vg/lv-apps  /mnt/apps
+sudo mount /dev/webdata-vg/lv-log  /mnt/logs
+sudo mount /dev/webdata-vg/lv-opt  /mnt/opt
+
+#Update nfs server
+
+sudo yum -y update
+
+
+PREPARING THE DB SERVER
+------------------------
+sudo apt update
+sudo apt install mysql-server
+# Next I created a database (tooling) ad database user (webaccess)
+sudo mysql
+#Create user and grant access to webserver1 using webserver1 subnet CIDR 172.31.32.0/20 
+create user 'webaccess'@'172.31.32.0/20' IDENTIFIED WITH mysql_native_password BY 'password'  
+GRANT ALL PRIVILEGES ON tooling.* to 'webaccess'@'172.31.32.0/20' WITH GRANT OPTION;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
