@@ -1,4 +1,5 @@
-Devops Tooling Website 
+   
+# Heading level 1 Devops Tooling Website 
 
 Infrastructure: AWS
 Webserver Linux: Red Hat Enterprise Linux 8
@@ -7,9 +8,9 @@ Storage Server: Red Hat Enterprise Linux 8 + NFS Server
 Programming Language: PHP
 Code Repository: GitHub
 
-# I created 3 instances for the Web Servers
-# One instance for the NFS server
-# One instance for the Database Server
+### I created one instance for the Web Server
+### One instance for the NFS server
+### One instance for the Database Server
 
 PREPARING THE NFS SERVER
 ------------------------
@@ -211,14 +212,21 @@ sudo cp -R html/. /var/www/html (copy when cd into tooling folder)
 
 1. check security groups
 2. check status of apache
-sudo setenforce 0
+sudo setenforce 0 ( Do this from root/home)
 To make this change permanent – open following config file sudo vi /etc/sysconfig/selinux 
 and set SELINUX=disabledthen restrt httpd.
 
 #Apache page now displayed after previous 403 error.
 #Success
+# Install mysql
+sudo yum install mysql -y
 
-Update the website’s configuration to connect to the database (in /var/www/html/functions.php file). Apply tooling-db.sql script to your database using this command mysql -h <databse-private-ip> -u <db-username> -p <db-pasword> < tooling-db.sql
+Update the website’s configuration to connect to the database (in /var/www/html/functions.php file). 
+Apply tooling-db.sql script to your database using this command 
+
+sudo mysql -h <databse-private-ip> -u <db-username> -p <db-pasword> < tooling-db.sql
+
+
 
 Create in MySQL a new admin user with username: myuser and password: password:
 
@@ -227,7 +235,13 @@ INSERT INTO ‘users’ (‘id’, ‘username’, ‘password’, ’email’, 
 
 Open the website in your browser http://<Web-Server-Public-IP-Address-or-Public-DNS-Name>/index.php and make sure you can login into the websute with myuser user.
 
-sudo mysql -h 172.31.35.244 -u webaccess -p tooling < tooling-db.sql
+sudo mysql -h 172.31.47.167 -u webaccess -p tooling < tooling-db.sql
+
+
+INSERT INTO ‘users’ (‘id’, ‘username’, ‘password’, ’email’, ‘user_type’, ‘status’) VALUES
+(1, ‘myuser’, ‘5f4dcc3b5aa765d61d8327deb882cf99’, ‘user@mail.com’, ‘admin’, ‘1’);
+
+
 
 
 
